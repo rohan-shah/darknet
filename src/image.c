@@ -1258,18 +1258,45 @@ int get_stream_fps(CvCapture *cap, int cpp_video_capture)
 void save_image_png(image im, const char *name)
 {
     char buff[256];
-    //sprintf(buff, "%s (%d)", name, windows);
-    sprintf(buff, "%s.png", name);
-    unsigned char* data = (unsigned char*)calloc(im.w * im.h * im.c, sizeof(unsigned char));
-    int i,k;
-    for(k = 0; k < im.c; ++k){
-        for(i = 0; i < im.w*im.h; ++i){
-            data[i*im.c+k] = (unsigned char) (255*im.data[i + k*im.w*im.h]);
-        }
+    if(im.c == 6)
+    {
+   			//sprintf(buff, "%s (%d)", name, windows);
+			sprintf(buff, "%s.1.png", name);
+			unsigned char* data = (unsigned char*)calloc(im.w * im.h * 3, sizeof(unsigned char));
+			int i,k;
+			for(k = 0; k < 3; ++k){
+				for(i = 0; i < im.w*im.h; ++i){
+					data[i*3+k] = (unsigned char) (255*im.data[i + k*im.w*im.h]);
+				}
+			}
+			int success = stbi_write_png(buff, im.w, im.h, 3, data, im.w*3);
+			if(!success) fprintf(stderr, "Failed to write image %s\n", buff);
+
+			sprintf(buff, "%s.2.png", name);
+ 			for(k = 0; k < 3; ++k){
+				for(i = 0; i < im.w*im.h; ++i){
+					data[i*3+k] = (unsigned char) (255*im.data[i + (k+3)*im.w*im.h]);
+				}
+			}
+			success = stbi_write_png(buff, im.w, im.h, 3, data, im.w*3);
+			free(data);
+			if(!success) fprintf(stderr, "Failed to write image %s\n", buff);
+	}
+    else
+    {
+			//sprintf(buff, "%s (%d)", name, windows);
+			sprintf(buff, "%s.png", name);
+			unsigned char* data = (unsigned char*)calloc(im.w * im.h * im.c, sizeof(unsigned char));
+			int i,k;
+			for(k = 0; k < im.c; ++k){
+				for(i = 0; i < im.w*im.h; ++i){
+					data[i*im.c+k] = (unsigned char) (255*im.data[i + k*im.w*im.h]);
+				}
+			}
+			int success = stbi_write_png(buff, im.w, im.h, im.c, data, im.w*im.c);
+			free(data);
+			if(!success) fprintf(stderr, "Failed to write image %s\n", buff);
     }
-    int success = stbi_write_png(buff, im.w, im.h, im.c, data, im.w*im.c);
-    free(data);
-    if(!success) fprintf(stderr, "Failed to write image %s\n", buff);
 }
 
 void save_image_options(image im, const char *name, IMTYPE f, int quality)
@@ -1281,20 +1308,47 @@ void save_image_options(image im, const char *name, IMTYPE f, int quality)
     else if (f == TGA) sprintf(buff, "%s.tga", name);
     else if (f == JPG) sprintf(buff, "%s.jpg", name);
     else               sprintf(buff, "%s.png", name);
-    unsigned char* data = (unsigned char*)calloc(im.w * im.h * im.c, sizeof(unsigned char));
-    int i, k;
-    for (k = 0; k < im.c; ++k) {
-        for (i = 0; i < im.w*im.h; ++i) {
-            data[i*im.c + k] = (unsigned char)(255 * im.data[i + k*im.w*im.h]);
-        }
+    if(im.c == 6)
+    {
+		sprintf(buff, "%s.1.png", name);
+	    unsigned char* data = (unsigned char*)calloc(im.w * im.h * 3, sizeof(unsigned char));
+	    int i, k;
+	    for (k = 0; k < 3; ++k) {
+		for (i = 0; i < im.w*im.h; ++i) {
+		    data[i*3 + k] = (unsigned char)(255 * im.data[i + k*im.w*im.h]);
+		}
+	    }
+	    int success = 0;
+	    success = stbi_write_png(buff, im.w, im.h, 3, data, im.w*3);
+	    if (!success) fprintf(stderr, "Failed to write image %s\n", buff);
+	    
+		for (k = 0; k < 3; ++k) {
+		for (i = 0; i < im.w*im.h; ++i) {
+		    data[i*3 + k] = (unsigned char)(255 * im.data[i + (k+3)*im.w*im.h]);
+		}
+	    }
+		sprintf(buff, "%s.2.png", name);
+	    success = stbi_write_png(buff, im.w, im.h, 3, data, im.w*3);
+	    free(data);
+	    if (!success) fprintf(stderr, "Failed to write image %s\n", buff);
     }
-    int success = 0;
-    if (f == PNG)       success = stbi_write_png(buff, im.w, im.h, im.c, data, im.w*im.c);
-    else if (f == BMP) success = stbi_write_bmp(buff, im.w, im.h, im.c, data);
-    else if (f == TGA) success = stbi_write_tga(buff, im.w, im.h, im.c, data);
-    else if (f == JPG) success = stbi_write_jpg(buff, im.w, im.h, im.c, data, quality);
-    free(data);
-    if (!success) fprintf(stderr, "Failed to write image %s\n", buff);
+    else
+    {
+	    unsigned char* data = (unsigned char*)calloc(im.w * im.h * im.c, sizeof(unsigned char));
+	    int i, k;
+	    for (k = 0; k < im.c; ++k) {
+		for (i = 0; i < im.w*im.h; ++i) {
+		    data[i*im.c + k] = (unsigned char)(255 * im.data[i + k*im.w*im.h]);
+		}
+	    }
+	    int success = 0;
+	    if (f == PNG)       success = stbi_write_png(buff, im.w, im.h, im.c, data, im.w*im.c);
+	    else if (f == BMP) success = stbi_write_bmp(buff, im.w, im.h, im.c, data);
+	    else if (f == TGA) success = stbi_write_tga(buff, im.w, im.h, im.c, data);
+	    else if (f == JPG) success = stbi_write_jpg(buff, im.w, im.h, im.c, data, quality);
+	    free(data);
+	    if (!success) fprintf(stderr, "Failed to write image %s\n", buff);
+    }
 }
 
 void save_image(image im, const char *name)
@@ -1985,22 +2039,59 @@ image load_image_stb(char *filename, int channels)
     free(data);
     return im;
 }
+image load_image_custom(char* filename, int channels)
+{
+    int filenameLen = strlen(filename);
+    char* filename1 = filename;
+    //Copy filename and change one character
+    char* filename2 = malloc(sizeof(char)*filenameLen);
+    strcpy(filename2, filename1);
+    //original is abc.1.png
+    filename2[filenameLen - 5] = '2';
 
+    image im1 = load_image_stb(filename1, 3);
+    image im2 = load_image_stb(filename2, 3);
+    free(filename2);
+    int w = im1.w, h = im1.h;
+    image result = make_image(w, h, 6);
+    int i, j, k;
+    for(k = 0; k < 3; ++k){
+        for(j = 0; j < h; ++j){
+            for(i = 0; i < w; ++i){
+                int dst_index1 = i + w*j + w*h*k;
+                int dst_index2 = i + w*j + w*h*(k+3);
+                int src_index = i + w*j + w*h*k;
+                result.data[dst_index1] = im1.data[src_index];
+                result.data[dst_index2] = im2.data[src_index];
+            }
+        }
+    }
+    free_image(im1);
+    free_image(im2);
+    return result;
+}
 image load_image(char *filename, int w, int h, int c)
 {
+    image out;
+    if(c == 6)
+    {
+        out = load_image_custom(filename, c);
+    }
+    else
+    {
 #ifdef OPENCV
 
 #ifndef CV_VERSION_EPOCH
     //image out = load_image_stb(filename, c);    // OpenCV 3.x
-    image out = load_image_cv(filename, c);
+	    out = load_image_cv(filename, c);
 #else
-    image out = load_image_cv(filename, c);        // OpenCV 2.4.x
+	    out = load_image_cv(filename, c);        // OpenCV 2.4.x
 #endif
 
 #else
-    image out = load_image_stb(filename, c);    // without OpenCV
+	    out = load_image_stb(filename, c);    // without OpenCV*/
 #endif
-
+    }
     if((h && w) && (h != out.h || w != out.w)){
         image resized = resize_image(out, w, h);
         free_image(out);
