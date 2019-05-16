@@ -850,7 +850,7 @@ data load_data_detection(int n, char **paths, int m, int w, int h, int c, int bo
 
         image sized = resize_image(cropped, w, h);
         if (flip) flip_image(sized);
-        random_distort_image(sized, hue, saturation, exposure);
+        //random_distort_image(sized, hue, saturation, exposure);
         d.X.vals[i] = sized.data;
 
         fill_truth_detection(random_paths[i], boxes, d.y.vals[i], classes, flip, dx, dy, 1. / sx, 1. / sy, small_object, w, h);

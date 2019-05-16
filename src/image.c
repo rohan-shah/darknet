@@ -1266,7 +1266,7 @@ void save_image_png(image im, const char *name)
 			int i,k;
 			for(k = 0; k < 3; ++k){
 				for(i = 0; i < im.w*im.h; ++i){
-					data[i*3+k] = (unsigned char) (255*im.data[i + k*im.w*im.h]);
+					data[i*3+k] = (unsigned char) (127*im.data[i + k*im.w*im.h]);
 				}
 			}
 			int success = stbi_write_png(buff, im.w, im.h, 3, data, im.w*3);
@@ -1275,7 +1275,7 @@ void save_image_png(image im, const char *name)
 			sprintf(buff, "%s.2.png", name);
  			for(k = 0; k < 3; ++k){
 				for(i = 0; i < im.w*im.h; ++i){
-					data[i*3+k] = (unsigned char) (255*im.data[i + (k+3)*im.w*im.h]);
+					data[i*3+k] = (unsigned char) (127*im.data[i + (k+3)*im.w*im.h]);
 				}
 			}
 			success = stbi_write_png(buff, im.w, im.h, 3, data, im.w*3);
@@ -2044,7 +2044,7 @@ image load_image_custom(char* filename, int channels)
     int filenameLen = strlen(filename);
     char* filename1 = filename;
     //Copy filename and change one character
-    char* filename2 = malloc(sizeof(char)*filenameLen);
+    char* filename2 = (char*)malloc(sizeof(char)*(filenameLen+1));
     strcpy(filename2, filename1);
     //original is abc.1.png
     filename2[filenameLen - 5] = '2';
