@@ -104,7 +104,7 @@ typedef enum {
 
 // image.h
 typedef enum{
-    PNG, BMP, TGA, JPG
+    PNG, BMP, TGA, JPG, TIFF_DARKNET
 } IMTYPE;
 
 // activations.h

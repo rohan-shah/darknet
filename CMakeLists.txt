@@ -169,6 +169,8 @@ if(OPENMP_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
+find_package(tiff REQUIRED)
+
 #look for all *.h files in src folder
 file(GLOB headers "${CMAKE_CURRENT_LIST_DIR}/src/*.h")
 #add also files in the include folder
@@ -183,6 +185,11 @@ list(REMOVE_ITEM headers
 
 #look for all *.c files in src folder
 file(GLOB sources "${CMAKE_CURRENT_LIST_DIR}/src/*.c")
+#look for all *.cpp files in src folder, excluding src/yolo_console_dll.cpp
+set(cpp_sources "${CMAKE_CURRENT_LIST_DIR}/src/http_stream.cpp" "${CMAKE_CURRENT_LIST_DIR}/src/image.cpp" "${CMAKE_CURRENT_LIST_DIR}/src/libtiff.cpp" "${CMAKE_CURRENT_LIST_DIR}/src/yolo_v2_class.cpp")
+
+list(APPEND sources ${cpp_sources})
+
 #add also .cpp files
 list(APPEND sources
   ${CMAKE_CURRENT_LIST_DIR}/src/http_stream.cpp
@@ -242,6 +249,9 @@ if(CUDNN_FOUND)
   target_link_libraries(darklib ${CUDNN_LIBRARY})
 endif()
 
+target_link_libraries(darknet tiff)
+target_link_libraries(darklib tiff)
+
 if(OpenCV_FOUND)
   target_link_libraries(darknet ${OpenCV_LIBS})
   target_link_libraries(darklib ${OpenCV_LIBS})
@@ -280,3 +290,6 @@ endif()
 
 install(TARGETS darklib uselib darknet DESTINATION ${CMAKE_SOURCE_DIR}/)
 export(TARGETS darklib FILE ${CMAKE_BINARY_DIR}/darklibConfig.cmake)
+
+add_executable(testImage src/testImage.cpp)
+target_link_libraries(testImage PRIVATE darklib)
