@@ -242,6 +242,7 @@ void replace_image_to_label(const char* input_path, char* output_path)
     trim(output_path);
 
     // replace only ext of files
+    find_replace_extension(output_path, ".tif", ".txt", output_path);
     find_replace_extension(output_path, ".jpg", ".txt", output_path);
     find_replace_extension(output_path, ".JPG", ".txt", output_path); // error
     find_replace_extension(output_path, ".jpeg", ".txt", output_path);

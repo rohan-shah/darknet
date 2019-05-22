@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <cmath>
 extern "C"
 {
 	void handler(const char *module, const char *fmt, va_list ap)
@@ -49,9 +50,13 @@ extern "C"
 			{
 			    int dst_index1 = i + image1.width*j + image1.width*image1.length*k;
 			    int dst_index2 = i + image1.width*j + image1.width*image1.length*(k+3);
-			    result.data[dst_index1] = std::min(1.0f, ((float)*(uint32*)&raster1[k * (image1.bps/8) + i * pixelsize1 + j * rowsize1]) / max_uint32);
-			    result.data[dst_index2] = std::min(1.0f, ((float)*(uint32*)&raster2[k * (image2.bps/8) + i * pixelsize2 + j * rowsize2]) / max_uint32);
-				//file << *(uint32*)&raster1[k * (image1.bps/8) + i * pixelsize1 + j * rowsize1] << " " ;
+				uint32 firstValue = *(uint32*)&raster1[k * (image1.bps/8) + i * pixelsize1 + j * rowsize1];
+				if(firstValue == 0) result.data[dst_index1] = 0;
+			    else result.data[dst_index1] = std::log2f(firstValue) / 32;
+
+				uint32 secondValue = *(uint32*)&raster2[k * (image2.bps/8) + i * pixelsize2 + j * rowsize2];
+				if(secondValue == 0) result.data[dst_index2] = 0;
+			    else result.data[dst_index2] = std::log2f(secondValue) / 32;
 			}
 		}
         }
@@ -105,9 +110,7 @@ extern "C"
 			{
 				for(int channel = 0; channel < 3; channel++)
 				{
-					float floatingValue = (im.data[column + im.w*scanline + im.h*im.w*(channel+3)]*UINT32_MAX);
-					if(floatingValue >= UINT32_MAX) scanlineData[channel + column*3 + scanline*im.w*3] = UINT32_MAX;
-					else scanlineData[channel + column*3 + scanline*im.w*3]= (uint32_t)floatingValue;
+					scanlineData[channel + column*3 + scanline*im.w*3]= std::exp2(im.data[column + im.w*scanline + im.h*im.w*(channel+3)]*32);
 				}
 			}
 		}
@@ -133,9 +136,7 @@ extern "C"
 			{
 				for(int channel = 0; channel < 3; channel++)
 				{
-					float floatingValue = (im.data[column + im.w*scanline + im.h*im.w*(channel+3)]*UINT32_MAX);
-					if(floatingValue >= UINT32_MAX) scanlineData[channel + column*3 + scanline*im.w*3] = UINT32_MAX;
-					else scanlineData[channel + column*3 + scanline*im.w*3]= (uint32_t)floatingValue;
+					scanlineData[channel + column*3 + scanline*im.w*3]= std::exp2(im.data[column + im.w*scanline + im.h*im.w*(channel+3)]*32);
 				}
 			}
 		}
